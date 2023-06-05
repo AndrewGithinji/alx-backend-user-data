@@ -18,10 +18,9 @@ def view_all_users() -> str:
 
 @app_views.route('/users/<user_id>', methods=['GET'], strict_slashes=False)
 def view_one_user(user_id: str = None) -> str:
-    """ GET /api/v1/users/:id or me
+    """ GET /api/v1/users/:id
     Path parameter:
       - User ID
-      - Me user
     Return:
       - User object JSON represented
       - 404 if the User ID doesn't exist
@@ -36,6 +35,8 @@ def view_one_user(user_id: str = None) -> str:
     user = User.get(user_id)
     if user is None:
         abort(404)
+    if request.current_user is None:
+        abort(404)
     return jsonify(user.to_json())
 
 
@@ -45,7 +46,7 @@ def delete_user(user_id: str = None) -> str:
     Path parameter:
       - User ID
     Return:
-      - empty JSON if the User has been correctly deleted
+      - empty JSON is the User has been correctly deleted
       - 404 if the User ID doesn't exist
     """
     if user_id is None:
@@ -105,5 +106,24 @@ def update_user(user_id: str = None) -> str:
       - first_name (optional)
     Return:
       - User object JSON represented
-      - 404
-"""
+      - 404 if the User ID doesn't exist
+      - 400 if can't update the User
+    """
+    if user_id is None:
+        abort(404)
+    user = User.get(user_id)
+    if user is None:
+        abort(404)
+    rj = None
+    try:
+        rj = request.get_json()
+    except Exception as e:
+        rj = None
+    if rj is None:
+        return jsonify({'error': "Wrong format"}), 400
+    if rj.get('first_name') is not None:
+        user.first_name = rj.get('first_name')
+    if rj.get('last_name') is not None:
+        user.last_name = rj.get('last_name')
+    user.save()
+    return jsonify(user.to_json()), 200
