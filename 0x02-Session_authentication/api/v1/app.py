@@ -42,10 +42,10 @@ def not_found(error) -> str:
 
 @app.errorhandler(401)
 def unauthorized(error) -> str:
-    """Handle a unauthorized access
+    """Handle an unauthorized access
 
         Args:
-            error: Error catch
+            error: Error caught
 
         Return:
             Info of the error
@@ -58,7 +58,7 @@ def forbidden(error) -> str:
     """Handle a forbidden resource
 
         Args:
-            error: Error catch
+            error: Error caught
 
         Return:
             Info of the error
